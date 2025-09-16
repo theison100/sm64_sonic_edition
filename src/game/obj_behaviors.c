@@ -852,3 +852,7 @@ s8 UNUSED debug_sequence_tracker(s16 debugInputSequence[]) {
 #include "behaviors/treasure_chest.inc.c"
 #include "behaviors/mips.inc.c"
 #include "behaviors/yoshi.inc.c"
+
+//sonic
+#include "behaviors/reticle.inc.c"
+#include "behaviors/emerald_circle.inc.c"

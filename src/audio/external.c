@@ -312,6 +312,9 @@ u8 sBackgroundMusicDefaultVolume[] = {
     70,  // SEQ_EVENT_CUTSCENE_ENDING
     65,  // SEQ_MENU_FILE_SELECT
     0,   // SEQ_EVENT_CUTSCENE_LAKITU (not in JP)
+    75,
+    65,
+    70,
 };
 
 STATIC_ASSERT(ARRAY_COUNT(sBackgroundMusicDefaultVolume) == SEQ_COUNT,
@@ -2646,16 +2649,32 @@ void play_star_fanfare(void) {
  * Called from threads: thread5_game_loop
  */
 void play_power_star_jingle(u8 arg0) {
+    u8 curcoinstar;
+    curcoinstar = save_file_get_star_flags(gCurrSaveFileNum - 1, gCurrCourseNum - 1) & (1 << 6);
+
+
     if (!arg0) {
         sBackgroundMusicTargetVolume = 0;
     }
-    seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_CUTSCENE_STAR_SPAWN, 0);
+
+    if (gMarioState->coinstartotal < 7 && gCurrLevelNum != LEVEL_CASTLE && gCurrLevelNum != LEVEL_PSS && curcoinstar == 0 && gMarioState->numCoins >= 100)
+    {
+        seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EMERALD, 0);
+    }
+    else
+    {
+        seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_CUTSCENE_STAR_SPAWN, 0);
+
+    }
+    
     sBackgroundMusicMaxTargetVolume = TARGET_VOLUME_IS_PRESENT_FLAG | 20;
 #if defined(VERSION_EU) || defined(VERSION_SH)
     D_EU_80300558 = 2;
 #endif
     begin_background_music_fade(50);
 }
+
+
 
 /**
  * Called from threads: thread5_game_loop

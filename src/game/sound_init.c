@@ -184,7 +184,7 @@ void play_menu_sounds(s16 soundMenuFlags) {
 void play_painting_eject_sound(void) {
     if (gRipplingPainting != NULL && gRipplingPainting->state == PAINTING_ENTERED) {
         // ripple when Mario enters painting
-        if (!sPaintingEjectSoundPlayed) {
+        if (sPaintingEjectSoundPlayed == FALSE) {
             play_sound(SOUND_GENERAL_PAINTING_EJECT,
                        gMarioStates[0].marioObj->header.gfx.cameraToObject);
         }
@@ -283,6 +283,23 @@ void stop_shell_music(void) {
     }
 }
 
+void play_drown_music(void) {
+    play_music(SEQ_PLAYER_LEVEL, SEQUENCE_ARGS(7, SEQ_DROWN), 0);
+    sCurrentShellMusic = SEQUENCE_ARGS(7, SEQ_DROWN);
+    //sCurrentShellMusic = SEQUENCE_ARGS(4, SEQ_LEVEL_SLIDE);
+    //sCurrentShellMusic = SEQUENCE_ARGS(4, SEQ_LEVEL_SLIDE);
+}
+
+void stop_drown_music(void) {
+    if (sCurrentShellMusic != MUSIC_NONE) {
+        //play_music(0, SEQUENCE_ARGS(4, 0), 0);
+        stop_background_music(sCurrentShellMusic);
+        sCurrentShellMusic = MUSIC_NONE;
+        sCurrentMusic = MUSIC_NONE;
+    }
+}
+
+
 /**
  * Called from threads: thread5_game_loop
  */
@@ -302,6 +319,8 @@ void fadeout_cap_music(void) {
         fadeout_background_music(sCurrentCapMusic, 600);
     }
 }
+
+
 
 /**
  * Called from threads: thread5_game_loop
