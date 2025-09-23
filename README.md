@@ -1,3 +1,7 @@
+# Sonic Edition
+This Branch contain a playable Moveset for Sonic
+
+*following text taken from the master branch
 # Super Mario 64
 
 - This repo contains a full decompilation of Super Mario 64 of the following releases: Japan (jp), North America (us), Europe (eu), Shindou (sh) and iQue Player (cn).

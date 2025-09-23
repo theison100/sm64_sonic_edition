@@ -850,7 +850,7 @@ struct Object *cur_obj_find_nearest_object_with_behavior(const BehaviorScript *b
 
     while (obj != (struct Object *) listHead) {
         if (obj->behavior == behaviorAddr) {
-            if (obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj != o) {
+            if (obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj != o && obj->oAction != OBJ_ACT_HORIZONTAL_KNOCKBACK && obj->oAction != OBJ_ACT_VERTICAL_KNOCKBACK && obj->oAction != OBJ_ACT_SQUISHED) {
                 f32 objDist = dist_between_objects(o, obj);
                 if (objDist < minDist) {
                     closestObj = obj;
@@ -2807,6 +2807,10 @@ s32 obj_attack_collided_from_other_object(struct Object *obj) {
 
 s32 cur_obj_was_attacked_or_ground_pounded(void) {
     s32 attacked = FALSE;
+        if ((o->oInteractStatus & INT_STATUS_INTERACTED) && (gMarioState->action == ACT_SLIDE_KICK_SLIDE))
+        {
+            attacked = TRUE;
+        }
 
     if ((o->oInteractStatus & INT_STATUS_INTERACTED)
         && (o->oInteractStatus & INT_STATUS_WAS_ATTACKED)) {

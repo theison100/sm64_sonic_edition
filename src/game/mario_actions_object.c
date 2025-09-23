@@ -28,8 +28,13 @@ s32 mario_update_punch_sequence(struct MarioState *m) {
     u32 endAction, crouchEndAction;
     s32 animFrame;
 
+
+
+
+
+
     if (m->action & ACT_FLAG_MOVING) {
-        endAction = ACT_WALKING, crouchEndAction = ACT_CROUCH_SLIDE;
+        endAction = ACT_WALKING, crouchEndAction = ACT_DIVE_SLIDE;
     } else {
         endAction = ACT_IDLE, crouchEndAction = ACT_CROUCHING;
     }
@@ -37,7 +42,7 @@ s32 mario_update_punch_sequence(struct MarioState *m) {
     switch (m->actionArg) {
         case 0:
             play_sound(SOUND_MARIO_PUNCH_YAH, m->marioObj->header.gfx.cameraToObject);
-            // fallthrough
+            // Fall-through:
         case 1:
             set_mario_animation(m, MARIO_ANIM_FIRST_PUNCH);
             if (is_anim_past_end(m)) {
@@ -77,7 +82,7 @@ s32 mario_update_punch_sequence(struct MarioState *m) {
 
         case 3:
             play_sound(SOUND_MARIO_PUNCH_WAH, m->marioObj->header.gfx.cameraToObject);
-            // fallthrough
+            // Fall-through:
         case 4:
             set_mario_animation(m, MARIO_ANIM_SECOND_PUNCH);
             if (is_anim_past_end(m)) {
@@ -114,6 +119,7 @@ s32 mario_update_punch_sequence(struct MarioState *m) {
             play_mario_action_sound(m, SOUND_MARIO_PUNCH_HOO, 1);
             animFrame = set_mario_animation(m, MARIO_ANIM_GROUND_KICK);
             if (animFrame == 0) {
+				
                 m->marioBodyState->punchState = (2 << 6) | 6;
             }
 
@@ -128,24 +134,51 @@ s32 mario_update_punch_sequence(struct MarioState *m) {
 
         case 9:
             play_mario_action_sound(m, SOUND_MARIO_PUNCH_HOO, 1);
-            set_mario_animation(m, MARIO_ANIM_BREAKDANCE);
-            animFrame = m->marioObj->header.gfx.animInfo.animFrame;
+           // set_mario_animation(m, MARIO_ANIM_FORWARD_SPINNING);
+			//animFrame = m->marioObj->header.gfx.unk38.animFrame;
+			
+			set_mario_action(m, ACT_SPINDASH, 0);
+
+
+		
+				
+
+			if (!(m->input & INPUT_Z_DOWN)) {
+			
+				//set_mario_action(m, crouchEndAction, 0);
+				//set_mario_action(m, ACT_DIVE_SLIDE, 0);
+				//mario_set_forward_vel(m, Accel);
+			}
+			else
+			{
+				//Accel += 50.0f;
+				//play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, 1);
+			}
+			//mario_set_forward_vel(m, 100.0f);
 
             if (animFrame >= 2 && animFrame < 8) {
-                m->flags |= MARIO_TRIPPING;
+                //m->flags |= MARIO_TRIPPING;
             }
 
             if (is_anim_at_end(m)) {
-                set_mario_action(m, crouchEndAction, 0);
+			
+
+
+					//set_mario_action(m, crouchEndAction, 0);
+				
+				
             }
-            break;
+            
     }
 
     return FALSE;
 }
 
+
+
+
 s32 act_punching(struct MarioState *m) {
-    if (m->input & INPUT_STOMPED) {
+    if (m->input & INPUT_UNKNOWN_10) {
         return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
@@ -173,7 +206,7 @@ s32 act_punching(struct MarioState *m) {
 }
 
 s32 act_picking_up(struct MarioState *m) {
-    if (m->input & INPUT_STOMPED) {
+    if (m->input & INPUT_UNKNOWN_10) {
         return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
@@ -211,7 +244,7 @@ s32 act_picking_up(struct MarioState *m) {
 }
 
 s32 act_dive_picking_up(struct MarioState *m) {
-    if (m->input & INPUT_STOMPED) {
+    if (m->input & INPUT_UNKNOWN_10) {
         return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
@@ -231,7 +264,7 @@ s32 act_dive_picking_up(struct MarioState *m) {
 }
 
 s32 act_placing_down(struct MarioState *m) {
-    if (m->input & INPUT_STOMPED) {
+    if (m->input & INPUT_UNKNOWN_10) {
         return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
@@ -252,7 +285,7 @@ s32 act_throwing(struct MarioState *m) {
         return set_mario_action(m, ACT_PLACING_DOWN, 0);
     }
 
-    if (m->input & INPUT_STOMPED) {
+    if (m->input & INPUT_UNKNOWN_10) {
         return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
@@ -264,9 +297,7 @@ s32 act_throwing(struct MarioState *m) {
         mario_throw_held_object(m);
         play_sound_if_no_flag(m, SOUND_MARIO_WAH2, MARIO_MARIO_SOUND_PLAYED);
         play_sound_if_no_flag(m, SOUND_ACTION_THROW, MARIO_ACTION_SOUND_PLAYED);
-#if ENABLE_RUMBLE
-        queue_rumble_data(3, 50);
-#endif
+
     }
 
     animated_stationary_ground_step(m, MARIO_ANIM_GROUND_THROW, ACT_IDLE);
@@ -274,7 +305,7 @@ s32 act_throwing(struct MarioState *m) {
 }
 
 s32 act_heavy_throw(struct MarioState *m) {
-    if (m->input & INPUT_STOMPED) {
+    if (m->input & INPUT_UNKNOWN_10) {
         return drop_and_set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
@@ -286,9 +317,7 @@ s32 act_heavy_throw(struct MarioState *m) {
         mario_drop_held_object(m);
         play_sound_if_no_flag(m, SOUND_MARIO_WAH2, MARIO_MARIO_SOUND_PLAYED);
         play_sound_if_no_flag(m, SOUND_ACTION_THROW, MARIO_ACTION_SOUND_PLAYED);
-#if ENABLE_RUMBLE
-        queue_rumble_data(3, 50);
-#endif
+
     }
 
     animated_stationary_ground_step(m, MARIO_ANIM_HEAVY_THROW, ACT_IDLE);
@@ -296,7 +325,7 @@ s32 act_heavy_throw(struct MarioState *m) {
 }
 
 s32 act_stomach_slide_stop(struct MarioState *m) {
-    if (m->input & INPUT_STOMPED) {
+    if (m->input & INPUT_UNKNOWN_10) {
         return set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
@@ -318,9 +347,7 @@ s32 act_picking_up_bowser(struct MarioState *m) {
         m->angleVel[1] = 0;
         m->marioBodyState->grabPos = GRAB_POS_BOWSER;
         mario_grab_used_object(m);
-#if ENABLE_RUMBLE
-        queue_rumble_data(5, 80);
-#endif
+
         play_sound(SOUND_MARIO_HRMM, m->marioObj->header.gfx.cameraToObject);
     }
 
@@ -396,15 +423,11 @@ s32 act_holding_bowser(struct MarioState *m) {
 
     // play sound on overflow
     if (m->angleVel[1] <= -0x100 && spin < m->faceAngle[1]) {
-#if ENABLE_RUMBLE
-        queue_rumble_data(4, 20);
-#endif
+
         play_sound(SOUND_OBJ_BOWSER_SPINNING, m->marioObj->header.gfx.cameraToObject);
     }
     if (m->angleVel[1] >= 0x100 && spin > m->faceAngle[1]) {
-#if ENABLE_RUMBLE
-        queue_rumble_data(4, 20);
-#endif
+
         play_sound(SOUND_OBJ_BOWSER_SPINNING, m->marioObj->header.gfx.cameraToObject);
     }
 
@@ -421,12 +444,12 @@ s32 act_holding_bowser(struct MarioState *m) {
 s32 act_releasing_bowser(struct MarioState *m) {
     if (++m->actionTimer == 1) {
         if (m->actionArg == 0) {
-#if ENABLE_RUMBLE
+#ifdef VERSION_SH
             queue_rumble_data(5, 50);
 #endif
             mario_throw_held_object(m);
         } else {
-#if ENABLE_RUMBLE
+#ifdef VERSION_SH
             queue_rumble_data(4, 50);
 #endif
             mario_drop_held_object(m);
@@ -478,6 +501,7 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_PICKING_UP_BOWSER:  cancel = act_picking_up_bowser(m);  break;
         case ACT_HOLDING_BOWSER:     cancel = act_holding_bowser(m);     break;
         case ACT_RELEASING_BOWSER:   cancel = act_releasing_bowser(m);   break;
+		case ACT_SPINDASH:           cancel = act_spindash(m);			 break;
     }
     /* clang-format on */
 

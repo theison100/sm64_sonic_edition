@@ -4,14 +4,13 @@
 
 #define INCLUDED_FROM_MEMORY_C
 
-#include "buffers/zbuffer.h"
 #include "buffers/buffers.h"
 #include "decompress.h"
 #include "game_init.h"
 #include "main.h"
 #include "memory.h"
-#include "segments.h"
 #include "segment_symbols.h"
+#include "segments.h"
 
 // round up to the next multiple
 #define ALIGN4(val) (((val) + 0x3) & ~0x3)
@@ -41,7 +40,6 @@ struct MemoryPool {
     struct MemoryBlock freeList;
 };
 
-// Double declared to preserve US bss ordering.
 extern uintptr_t sSegmentTable[32];
 extern u32 sPoolFreeSpace;
 extern u8 *sPoolStart;
@@ -56,12 +54,15 @@ extern struct MainPoolBlock *sPoolListHeadR;
  */
 struct MemoryPool *gEffectsMemoryPool;
 
-FORCE_BSS uintptr_t sSegmentTable[32];
-FORCE_BSS u32 sPoolFreeSpace;
-FORCE_BSS u8 *sPoolStart;
-FORCE_BSS u8 *sPoolEnd;
-FORCE_BSS struct MainPoolBlock *sPoolListHeadL;
-FORCE_BSS struct MainPoolBlock *sPoolListHeadR;
+
+uintptr_t sSegmentTable[32];
+uintptr_t sSegmentROMTable[32];
+u32 sPoolFreeSpace;
+u8 *sPoolStart;
+u8 *sPoolEnd;
+struct MainPoolBlock *sPoolListHeadL;
+struct MainPoolBlock *sPoolListHeadR;
+
 
 static struct MainPoolState *gMainPoolState = NULL;
 
@@ -113,12 +114,8 @@ void move_segment_table_to_dmem(void) {
  * that grow inward from the left and right. It therefore only supports
  * freeing the object that was most recently allocated from a side.
  */
-void main_pool_init(UNUSED_CN void *start, void *end) {
-#if defined(VERSION_CN) && !defined(USE_EXT_RAM)
-    sPoolStart = (u8 *) ALIGN16((uintptr_t) &gZBufferEnd) + 16;
-#else
+void main_pool_init(void *start, void *end) {
     sPoolStart = (u8 *) ALIGN16((uintptr_t) start) + 16;
-#endif
     sPoolEnd = (u8 *) ALIGN16((uintptr_t) end - 15) - 16;
     sPoolFreeSpace = sPoolEnd - sPoolStart;
 
@@ -257,7 +254,7 @@ static void dma_read(u8 *dest, u8 *srcStart, u8 *srcEnd) {
 
         osPiStartDma(&gDmaIoMesg, OS_MESG_PRI_NORMAL, OS_READ, (uintptr_t) srcStart, dest, copySize,
                      &gDmaMesgQueue);
-        osRecvMesg(&gDmaMesgQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
+        osRecvMesg(&gDmaMesgQueue, &D_80339BEC, OS_MESG_BLOCK);
 
         dest += copySize;
         srcStart += copySize;
@@ -289,7 +286,7 @@ void *load_segment(s32 segment, u8 *srcStart, u8 *srcEnd, u32 side) {
     void *addr = dynamic_dma_read(srcStart, srcEnd, side);
 
     if (addr != NULL) {
-        set_segment_base_addr(segment, addr);
+        set_segment_base_addr(segment, addr); sSegmentROMTable[segment] = (uintptr_t) srcStart;
     }
     return addr;
 }
@@ -337,11 +334,8 @@ void *load_segment_decompress(s32 segment, u8 *srcStart, u8 *srcEnd) {
         dma_read(compressed, srcStart, srcEnd);
         dest = main_pool_alloc(*size, MEMORY_POOL_LEFT);
         if (dest != NULL) {
-            CN_DEBUG_PRINTF(("start decompress\n"));
             decompress(compressed, dest);
-            CN_DEBUG_PRINTF(("end decompress\n"));
-
-            set_segment_base_addr(segment, dest);
+            set_segment_base_addr(segment, dest); sSegmentROMTable[segment] = (uintptr_t) srcStart;
             main_pool_free(compressed);
         } else {
         }
@@ -359,7 +353,7 @@ void *load_segment_decompress_heap(u32 segment, u8 *srcStart, u8 *srcEnd) {
     if (compressed != NULL) {
         dma_read(compressed, srcStart, srcEnd);
         decompress(compressed, gDecompressionHeap);
-        set_segment_base_addr(segment, gDecompressionHeap);
+        set_segment_base_addr(segment, gDecompressionHeap); sSegmentROMTable[segment] = (uintptr_t) srcStart;
         main_pool_free(compressed);
     } else {
     }
@@ -489,7 +483,7 @@ void *mem_pool_alloc(struct MemoryPool *pool, u32 size) {
 /**
  * Free a block that was allocated using mem_pool_alloc.
  */
-BAD_RETURN(s32) mem_pool_free(struct MemoryPool *pool, void *addr) {
+void mem_pool_free(struct MemoryPool *pool, void *addr) {
     struct MemoryBlock *block = (struct MemoryBlock *) ((u8 *) addr - sizeof(struct MemoryBlock));
     struct MemoryBlock *freeList = pool->freeList.next;
 
@@ -511,25 +505,21 @@ BAD_RETURN(s32) mem_pool_free(struct MemoryPool *pool, void *addr) {
                 if (freeList < block && block < freeList->next) {
                     break;
                 }
-
                 freeList = freeList->next;
             }
-
-            if (block == (struct MemoryBlock *) ((u8 *) freeList + freeList->size)) {
+            if ((u8 *) freeList + freeList->size == (u8 *) block) {
                 freeList->size += block->size;
                 block = freeList;
             } else {
                 block->next = freeList->next;
                 freeList->next = block;
             }
-
             if (block->next != NULL && (u8 *) block->next == (u8 *) block + block->size) {
                 block->size = block->size + block->next->size;
                 block->next = block->next->next;
             }
         }
     }
-    // nothing is returned, but must have non-void return type for render_text_labels to match on iQue
 }
 
 void *alloc_display_list(u32 size) {
@@ -544,37 +534,41 @@ void *alloc_display_list(u32 size) {
     return ptr;
 }
 
-static struct DmaTable *load_dma_table_address(u8 *srcAddr) {
-    struct DmaTable *table = dynamic_dma_read(srcAddr, srcAddr + sizeof(u32),
+static struct MarioAnimDmaRelatedThing *func_802789F0(u8 *srcAddr) {
+    struct MarioAnimDmaRelatedThing *sp1C = dynamic_dma_read(srcAddr, srcAddr + sizeof(u32),
                                                              MEMORY_POOL_LEFT);
-    u32 size = table->count * sizeof(struct OffsetSizePair) +
-        sizeof(struct DmaTable) - sizeof(struct OffsetSizePair);
-    main_pool_free(table);
+    u32 size = sizeof(u32) + (sizeof(u8 *) - sizeof(u32)) + sizeof(u8 *) +
+               sp1C->count * sizeof(struct OffsetSizePair);
+    main_pool_free(sp1C);
 
-    table = dynamic_dma_read(srcAddr, srcAddr + size, MEMORY_POOL_LEFT);
-    table->srcAddr = srcAddr;
-    return table;
+    sp1C = dynamic_dma_read(srcAddr, srcAddr + size, MEMORY_POOL_LEFT);
+    sp1C->srcAddr = srcAddr;
+    return sp1C;
 }
 
-void setup_dma_table_list(struct DmaHandlerList *list, void *srcAddr, void *buffer) {
-    if (srcAddr != NULL) {
-        list->dmaTable = load_dma_table_address(srcAddr);
+void func_80278A78(struct MarioAnimation *a, void *b, struct Animation *target) {
+    if (b != NULL) {
+        a->animDmaTable = func_802789F0(b);
     }
-    list->currentAddr = NULL;
-    list->bufTarget = buffer;
+    a->currentAnimAddr = NULL;
+    a->targetAnim = target;
 }
 
-s32 load_patchable_table(struct DmaHandlerList *list, s32 index) {
+// TODO: (Scrub C)
+s32 load_patchable_table(struct MarioAnimation *a, u32 index) {
     s32 ret = FALSE;
-    struct DmaTable *table = list->dmaTable;
+    struct MarioAnimDmaRelatedThing *sp20 = a->animDmaTable;
+    u8 *addr;
+    u32 size;
 
-    if ((u32)index < table->count) {
-        u8 *addr = table->srcAddr + table->anim[index].offset;
-        s32 size = table->anim[index].size;
-
-        if (addr != list->currentAddr) {
-            dma_read(list->bufTarget, addr, addr + size);
-            list->currentAddr = addr;
+    if (index < sp20->count) {
+        do {
+            addr = sp20->srcAddr + sp20->anim[index].offset;
+            size = sp20->anim[index].size;
+        } while (0);
+        if (a->currentAnimAddr != addr) {
+            dma_read((u8 *) a->targetAnim, addr, addr + size);
+            a->currentAnimAddr = addr;
             ret = TRUE;
         }
     }
