@@ -1,8 +1,7 @@
 #ifndef DIALOG_IDS_H
 #define DIALOG_IDS_H
 
-enum DialogID {
-    DIALOG_NONE = -1,
+enum DialogId {
     DIALOG_000,
     DIALOG_001,
     DIALOG_002,

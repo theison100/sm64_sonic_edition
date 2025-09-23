@@ -1031,7 +1031,7 @@ s32 act_twirl_land(struct MarioState *m) {
 
     return 0;
 }
-//sonic bound jump
+
 s32 act_ground_pound_land(struct MarioState *m) {
     m->actionState = 1;
 	

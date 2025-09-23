@@ -1789,16 +1789,11 @@ s32 update_mario_health(struct MarioState *m) {
 
                 m->homingObj = cur_obj_nearest_object_with_behavior(bhvBigBullyWithMinions);
             }
-            //new piranha check
+
             if (cur_obj_dist_to_nearest_object_with_behavior(bhvPiranhaPlant) < 800.0f)
             {
+
                 m->homingObj = cur_obj_nearest_object_with_behavior(bhvPiranhaPlant);
-                if (m->homingObj->oAction == PIRANHA_PLANT_ACT_WAIT_TO_RESPAWN || m->homingObj->oAction == PIRANHA_PLANT_ACT_SHRINK_AND_DIE || m->homingObj->oAction == PIRANHA_PLANT_ACT_ATTACKED)
-                {
-               
-                    m->homingObj = NULL;
-                }
-           
             }
 
             if (cur_obj_dist_to_nearest_object_with_behavior(bhvScuttlebug) < 800.0f)
@@ -1903,8 +1898,6 @@ s32 update_mario_health(struct MarioState *m) {
 
 
 	m->coinstartotal = ((starbob & (1 << 6)) + (starbbh & (1 << 6)) + (starccm & (1 << 6)) + (starhmc & (1 << 6)) + (starssl & (1 << 6)) + (starsl & (1 << 6)) + (starwdw & (1 << 6)) + (starjrb & (1 << 6)) + (starthi & (1 << 6)) + (starttc & (1 << 6)) + (starrr & (1 << 6)) + (starlll & (1 << 6)) + (starddd & (1 << 6)) + (starwf & (1 << 6)) + (starttm & (1 << 6))) / 64; //+ starbbh + starccm + starhmc + starssl + starsl + starwdw + starjrb + starthi + starttc + starrr + starlll + starddd + starwf + starttm;
-
-
 
 	if (cur_obj_dist_to_nearest_object_with_behavior(bhv_jet_stream_water_ring_loop) < 800.0f)
 	{
@@ -2396,8 +2389,6 @@ s32 update_mario_health(struct MarioState *m) {
         }
     }
 }
-
-
 
 /**
  * Updates some basic info for camera usage.

@@ -1,5 +1,6 @@
 #include "libultra_internal.h"
 
+#ifdef VERSION_SH
 u8 __osContAddressCrc(u16 addr) {
     u8 temp;
     u8 temp2;
@@ -44,3 +45,4 @@ u8 __osContDataCrc(u8 *data) {
     }
     return temp;
 }
+#endif

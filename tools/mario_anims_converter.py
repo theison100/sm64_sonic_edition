@@ -136,7 +136,7 @@ try:
             structdef.append("{} {}[{}];".format(type, name, len(arr)))
             structobj.append("{" + ",".join(arr) + "},")
 
-    print("#include \"game/memory.h\"")
+    print("#include \"types.h\"")
     print("#include <stddef.h>")
     print("")
 

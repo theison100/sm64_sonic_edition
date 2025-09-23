@@ -26,7 +26,7 @@
 
 #include "sparkle_animation/model.inc.c"
 
-//sonic
+
 
 #include "sonic_ball/model.inc.c"
 

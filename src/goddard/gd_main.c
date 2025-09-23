@@ -14,11 +14,11 @@
 
 // data
 s32 gGdMoveScene = TRUE; // @ 801A8050
-UNUSED static s32 sUnref801A8054 = TRUE;
+static s32 sUnref801A8054 = TRUE;
 f32 D_801A8058 = -600.0f;
 s32 gGdUseVtxNormal = TRUE; // @ 801A805C; instead of face normals
-UNUSED static s32 sUnrefScnWidth = 320;
-UNUSED static s32 sUnrefScnHeight = 240;
+static s32 sUnrefScnWidth = 320;
+static s32 sUnrefScnHeight = 240;
 
 // bss
 struct GdControl gGdCtrl;     // @ 801B9920; processed controller info
@@ -28,7 +28,7 @@ struct GdControl gGdCtrlPrev; // @ 801B9A18; previous frame's controller info
  * Unused main function possibly from when this was a standalone demo
  */
 u32 __main__(void) {
-    UNUSED u8 filler[4];
+    UNUSED u32 pad1C;
 
     gd_printf("%x, %x\n", (u32) (uintptr_t) &D_801A8058, (u32) (uintptr_t) &gGdMoveScene);
     imin("main");

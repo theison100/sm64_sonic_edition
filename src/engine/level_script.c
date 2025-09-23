@@ -286,11 +286,10 @@ static void level_cmd_load_mario_head(void) {
     if (addr != NULL) {
         gdm_init(addr, DOUBLE_SIZE_ON_64_BIT(0xE1000));
         gd_add_to_heap(gZBuffer, sizeof(gZBuffer)); // 0x25800
-        gd_add_to_heap(gFramebuffer0, 3 * sizeof(gFramebuffer0)); // 0x70800
+        gd_add_to_heap(gFrameBuffer0, 3 * sizeof(gFrameBuffer0)); // 0x70800
         gdm_setup();
         gdm_maketestdl(CMD_GET(s16, 2));
     } else {
-        CN_DEBUG_PRINTF(("face anime memory overflow\n"));
     }
 
     sCurrentCmd = CMD_NEXT;
@@ -426,7 +425,7 @@ static void level_cmd_init_mario(void) {
     gMarioSpawnInfo->areaIndex = 0;
     gMarioSpawnInfo->behaviorArg = CMD_GET(u32, 4);
     gMarioSpawnInfo->behaviorScript = CMD_GET(void *, 8);
-    gMarioSpawnInfo->model = gLoadedGraphNodes[CMD_GET(u8, 3)];
+    gMarioSpawnInfo->unk18 = gLoadedGraphNodes[CMD_GET(u8, 3)];
     gMarioSpawnInfo->next = NULL;
 
     sCurrentCmd = CMD_NEXT;
@@ -454,7 +453,7 @@ static void level_cmd_place_object(void) {
 
         spawnInfo->behaviorArg = CMD_GET(u32, 16);
         spawnInfo->behaviorScript = CMD_GET(void *, 20);
-        spawnInfo->model = gLoadedGraphNodes[model];
+        spawnInfo->unk18 = gLoadedGraphNodes[model];
         spawnInfo->next = gAreas[sCurrAreaIndex].objectSpawnInfos;
 
         gAreas[sCurrAreaIndex].objectSpawnInfos = spawnInfo;
@@ -546,8 +545,8 @@ static void level_cmd_3A(void) {
     struct UnusedArea28 *val4;
 
     if (sCurrAreaIndex != -1) {
-        if ((val4 = gAreas[sCurrAreaIndex].unused) == NULL) {
-            val4 = gAreas[sCurrAreaIndex].unused =
+        if ((val4 = gAreas[sCurrAreaIndex].unused28) == NULL) {
+            val4 = gAreas[sCurrAreaIndex].unused28 =
                 alloc_only_pool_alloc(sLevelPool, sizeof(struct UnusedArea28));
         }
 
@@ -683,7 +682,6 @@ static void level_cmd_set_transition(void) {
 }
 
 static void level_cmd_nop(void) {
-    CN_DEBUG_PRINTF(("BAD: seqBlankColor\n"));
     sCurrentCmd = CMD_NEXT;
 }
 
@@ -825,14 +823,11 @@ struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {
     sCurrentCmd = cmd;
 
     while (sScriptStatus == SCRIPT_RUNNING) {
-        CN_DEBUG_PRINTF(("%08X: ", sCurrentCmd));
-        CN_DEBUG_PRINTF(("%02d\n", sCurrentCmd->type));
-
         LevelScriptJumpTable[sCurrentCmd->type]();
     }
 
     profiler_log_thread5_time(LEVEL_SCRIPT_EXECUTE);
-    init_rcp();
+    init_render_image();
     render_game();
     end_master_display_list();
     alloc_display_list(0);

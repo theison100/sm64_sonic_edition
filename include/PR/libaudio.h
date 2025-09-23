@@ -7,9 +7,8 @@ typedef struct
 {
     u8 *offset;
     s32 len;
-#if defined(VERSION_SH) || defined(VERSION_CN)
-    s8 medium;
-    s8 magic; // tbl: 0x04, otherwise: 0x03
+#ifdef VERSION_SH
+    s8 magic[2]; // tbl: 0x0204, otherwise: 0x0203
 
     // for ctl (else zeros):
     union {
@@ -32,16 +31,14 @@ typedef struct
 
 typedef struct
 {
-#if !defined(VERSION_SH) && !defined(VERSION_CN)
+#ifndef VERSION_SH
     s16 revision;
 #endif
     s16 seqCount;
-#if defined(VERSION_SH) || defined(VERSION_CN)
+#ifdef VERSION_SH
     s16 unk2;
     u8 *data;
-#if !IS_64_BIT
     s32 pad[2];
-#endif
 #endif
     ALSeqData seqArray[1];
 } ALSeqFile;

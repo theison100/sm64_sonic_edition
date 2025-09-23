@@ -1333,8 +1333,7 @@ static s32 act_hold_metal_water_walking(struct MarioState *m) {
 
 static s32 act_metal_water_jump(struct MarioState *m) {
 	m->actionTimer++;
-	//exit water fix
-	set_camera_mode(m->area->camera, m->area->camera->defMode, 1);
+
 		if (m->flags & MARIO_METAL_CAP)
 			{
 			if (m->vel[1] < 3.0f)
@@ -1347,7 +1346,7 @@ static s32 act_metal_water_jump(struct MarioState *m) {
 		{
 			m->marioObj->header.gfx.animInfo.animAccel = 0x10000;
 			//set_camera_mode(m->area->camera, CAMERA_MODE_WATER_SURFACE, 1);
-			//set_camera_mode(m->area->camera, CAMERA_MODE_FREE_ROAM, 1);
+			set_camera_mode(m->area->camera, CAMERA_MODE_FREE_ROAM, 1);
 		}
 		else
 		{

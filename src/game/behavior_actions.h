@@ -3,9 +3,7 @@
 
 void spawn_mist_particles_variable(s32 count, s32 offsetY, f32 size);
 void bhv_spawn_star_no_level_exit(u32);
-//sonic emerald
 void bhv_spawn_emerald_no_level_exit(u32 sp20, u32 col);
-
 void bhv_star_door_loop_2(void);
 void spawn_triangle_break_particles(s16 numTris, s16 triModel, f32 triSize, s16 triAnimState);
 
@@ -68,8 +66,8 @@ void bhv_warp_loop(void);
 void bhv_white_puff_exploding_loop(void);
 void bhv_spawned_star_init(void);
 void bhv_spawned_star_loop(void);
-void bhv_spawned_coin_init(void);
-void bhv_spawned_coin_loop(void);
+void bhv_coin_init(void);
+void bhv_coin_loop(void);
 void bhv_coin_inside_boo_loop(void);
 void bhv_coin_formation_init(void);
 void bhv_coin_formation_spawn_loop(void);
@@ -234,7 +232,7 @@ void bhv_big_boo_loop(void);
 void bhv_courtyard_boo_triplet_init(void);
 void obj_set_secondary_camera_focus(void);
 void bhv_boo_loop(void);
-void bhv_boo_staircase(void);
+void bhv_boo_boss_spawned_bridge_loop(void);
 void bhv_bbh_tilting_trap_platform_loop(void);
 void bhv_haunted_bookshelf_loop(void);
 void bhv_merry_go_round_loop(void);
@@ -427,8 +425,8 @@ void bhv_treasure_chest_ship_init(void);
 void bhv_treasure_chest_ship_loop(void);
 void bhv_treasure_chest_jrb_init(void);
 void bhv_treasure_chest_jrb_loop(void);
-void bhv_treasure_chest_ddd_init(void);
-void bhv_treasure_chest_ddd_loop(void);
+void bhv_treasure_chest_init(void);
+void bhv_treasure_chest_loop(void);
 void bhv_treasure_chest_bottom_init(void);
 void bhv_treasure_chest_bottom_loop(void);
 void bhv_treasure_chest_top_loop(void);
@@ -554,7 +552,6 @@ void bhv_intro_scene_loop(void);
 void bhv_dust_smoke_loop(void);
 void bhv_yoshi_loop(void);
 void bhv_volcano_trap_loop(void);
-//sonic
 void bhv_reticle_init(void);
 void bhv_reticle_update(void);
 void bhv_emerald_circle_init(void);

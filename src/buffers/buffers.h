@@ -5,7 +5,6 @@
 
 #include "game/save_file.h"
 #include "game/game_init.h"
-#include "config.h"
 
 extern u8 gDecompressionHeap[];
 
@@ -19,7 +18,7 @@ extern u8 gIdleThreadStack[];
 extern u8 gThread3Stack[];
 extern u8 gThread4Stack[];
 extern u8 gThread5Stack[];
-#if ENABLE_RUMBLE
+#ifdef VERSION_SH
 extern u8 gThread6Stack[];
 #endif
 

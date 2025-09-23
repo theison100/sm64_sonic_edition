@@ -1,8 +1,6 @@
 #ifndef _ULTRA64_TYPES_H_
 #define _ULTRA64_TYPES_H_
 
-#if defined(_LANGUAGE_C) || defined(_LANGUAGE_C_PLUS_PLUS)
-
 #ifndef NULL
 #define NULL    (void *)0
 #endif
@@ -41,8 +39,6 @@ typedef s32 ptrdiff_t;
 #include <stddef.h>
 #include <stdint.h>
 typedef ptrdiff_t ssize_t;
-#endif
-
 #endif
 
 #endif

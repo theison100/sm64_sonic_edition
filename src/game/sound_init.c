@@ -23,15 +23,13 @@ static OSMesgQueue sSoundMesgQueue;
 static OSMesg sSoundMesgBuf[1];
 static struct VblankHandler sSoundVblankHandler;
 
-// Only written to, never read.
-static u8 sMusicVolume = 0;
-
-static u8 sBgMusicDisabled = FALSE;
+static u8 D_8032C6C0 = 0;
+static u8 D_8032C6C4 = 0;
 static u16 sCurrentMusic = MUSIC_NONE;
 static u16 sCurrentShellMusic = MUSIC_NONE;
 static u16 sCurrentCapMusic = MUSIC_NONE;
 static u8 sPlayingInfiniteStairs = FALSE;
-UNUSED static u8 unused8032C6D8[16] = { 0 };
+static u8 unused8032C6D8[16] = { 0 };
 static s16 sSoundMenuModeToSoundMode[] = { SOUND_MODE_STEREO, SOUND_MODE_MONO, SOUND_MODE_HEADSET };
 // Only the 20th array element is used.
 static u32 sMenuSoundsExtra[] = {
@@ -80,7 +78,7 @@ void play_menu_sounds_extra(s32 a, void *b);
  * Called from threads: thread5_game_loop
  */
 void reset_volume(void) {
-    sMusicVolume = 0;
+    D_8032C6C0 = 0;
 }
 
 /**
@@ -95,7 +93,7 @@ void lower_background_noise(s32 a) {
             seq_player_lower_volume(SEQ_PLAYER_LEVEL, 60, 40);
             break;
     }
-    sMusicVolume |= a;
+    D_8032C6C0 |= a;
 }
 
 /**
@@ -110,15 +108,15 @@ void raise_background_noise(s32 a) {
             seq_player_unlower_volume(SEQ_PLAYER_LEVEL, 60);
             break;
     }
-    sMusicVolume &= ~a;
+    D_8032C6C0 &= ~a;
 }
 
 /**
  * Called from threads: thread5_game_loop
  */
 void disable_background_sound(void) {
-    if (sBgMusicDisabled == FALSE) {
-        sBgMusicDisabled = TRUE;
+    if (D_8032C6C4 == 0) {
+        D_8032C6C4 = 1;
         sound_banks_disable(SEQ_PLAYER_SFX, SOUND_BANKS_BACKGROUND);
     }
 }
@@ -127,8 +125,8 @@ void disable_background_sound(void) {
  * Called from threads: thread5_game_loop
  */
 void enable_background_sound(void) {
-    if (sBgMusicDisabled == TRUE) {
-        sBgMusicDisabled = FALSE;
+    if (D_8032C6C4 == 1) {
+        D_8032C6C4 = 0;
         sound_banks_enable(SEQ_PLAYER_SFX, SOUND_BANKS_BACKGROUND);
     }
 }
@@ -171,7 +169,7 @@ void play_menu_sounds(s16 soundMenuFlags) {
     if (soundMenuFlags & 0x100) {
         play_menu_sounds_extra(20, NULL);
     }
-#if ENABLE_RUMBLE
+#ifdef VERSION_SH
     if (soundMenuFlags & SOUND_MENU_FLAG_LETGOMARIOFACE) {
         queue_rumble_data(10, 60);
     }
@@ -368,7 +366,11 @@ void thread4_sound(UNUSED void *arg) {
         if (gResetTimer < 25) {
             struct SPTask *spTask;
             profiler_log_thread4_time();
-            spTask = create_next_audio_frame_task();
+#ifdef VERSION_SH
+            spTask = func_sh_802f5a80(); // The function was probably just moved to a different file. Don't kill me.
+#else
+            spTask = create_next_audio_frame_task(); 
+#endif
             if (spTask != NULL) {
                 dispatch_audio_sptask(spTask);
             }

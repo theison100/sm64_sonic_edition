@@ -812,7 +812,6 @@ u32 interact_coin(struct MarioState* m, UNUSED u32 interactType, struct Object* 
             }
             else
             {
-                //sonic emerald
                 bhv_spawn_emerald_no_level_exit(6, m->coinstartotal);
             }
         }
@@ -827,10 +826,8 @@ u32 interact_coin(struct MarioState* m, UNUSED u32 interactType, struct Object* 
 
 u32 interact_water_ring(struct MarioState* m, UNUSED u32 interactType, struct Object* o) {
     m->healCounter += 4 * o->oDamageOrCoinValue;
-    //sonic
     m->drownTimer = 0;
     stop_drown_music();
-
     o->oInteractStatus = INT_STATUS_INTERACTED;
     return FALSE;
 }

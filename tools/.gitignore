@@ -2,7 +2,11 @@
 /aiff_extract_codebook
 /armips
 /extract_data_for_mio
-/patch_elf_32bit
+/mio0
+/n64cksum
+/n64graphics
+/n64graphics_ci
+/patch_libultra_math
 /skyconv
 /tabledesign
 /textconv

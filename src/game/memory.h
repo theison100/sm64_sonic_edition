@@ -8,7 +8,9 @@
 #define MEMORY_POOL_LEFT  0
 #define MEMORY_POOL_RIGHT 1
 
-struct AllocOnlyPool {
+
+struct AllocOnlyPool
+{
     s32 totalSpace;
     s32 usedSpace;
     u8 *startPtr;
@@ -16,23 +18,6 @@ struct AllocOnlyPool {
 };
 
 struct MemoryPool;
-
-struct OffsetSizePair {
-    u32 offset;
-    u32 size;
-};
-
-struct DmaTable {
-    u32 count;
-    u8 *srcAddr;
-    struct OffsetSizePair anim[1]; // dynamic size
-};
-
-struct DmaHandlerList {
-    struct DmaTable *dmaTable;
-    void *currentAddr;
-    void *bufTarget;
-};
 
 #ifndef INCLUDED_FROM_MEMORY_C
 // Declaring this variable extern puts it in the wrong place in the bss order
@@ -75,11 +60,11 @@ struct AllocOnlyPool *alloc_only_pool_resize(struct AllocOnlyPool *pool, u32 siz
 
 struct MemoryPool *mem_pool_init(u32 size, u32 side);
 void *mem_pool_alloc(struct MemoryPool *pool, u32 size);
-BAD_RETURN(s32) mem_pool_free(struct MemoryPool *pool, void *addr);
+void mem_pool_free(struct MemoryPool *pool, void *addr);
 
 void *alloc_display_list(u32 size);
-void setup_dma_table_list(struct DmaHandlerList *list, void *srcAddr, void *buffer);
-s32 load_patchable_table(struct DmaHandlerList *list, s32 index);
+void func_80278A78(struct MarioAnimation *a, void *b, struct Animation *target);
+s32 load_patchable_table(struct MarioAnimation *a, u32 b);
 
 
 extern uintptr_t sSegmentROMTable[32];

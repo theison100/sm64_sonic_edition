@@ -908,9 +908,6 @@ s32 act_twirling(struct MarioState *m) {
     s16 startTwirlYaw = m->twirlYaw;
     s16 yawVelTarget;
 
-    //homing fix
-    m->homingObj = NULL;
-
     if (m->input & INPUT_A_DOWN) {
         yawVelTarget = 0x2000;
     } else {
