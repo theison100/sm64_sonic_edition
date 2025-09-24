@@ -1,3 +1,8 @@
+# Sonic Edition
+-This is a mod of Super Mario 64 that lets you play as Sonic
+
+
+*the following text is taken from the M64 decomp
 # Super Mario 64
 
 - This repo contains a full decompilation of Super Mario 64 (J), (U), and (E).
